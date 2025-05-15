@@ -57,3 +57,5 @@ htmlcov/
 .nox/
 .hypothesis/
 .coverage.*
+
+DEPLOYMENT.md
