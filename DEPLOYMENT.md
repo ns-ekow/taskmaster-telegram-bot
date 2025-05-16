@@ -1,10 +1,10 @@
-# Deploying the Telegram Roadmap Bot to Render
+# Deploying the Telegram Roadmap Bot to PythonAnywhere
 
-This guide will walk you through deploying your Telegram Roadmap Bot to [Render](https://render.com), a cloud platform that makes it easy to deploy applications.
+This guide will walk you through deploying your Telegram Roadmap Bot to [PythonAnywhere](https://www.pythonanywhere.com/), a cloud platform that makes it easy to host and run Python applications.
 
 ## Prerequisites
 
-1. A [Render account](https://dashboard.render.com/register)
+1. A [PythonAnywhere account](https://www.pythonanywhere.com/registration/register/beginner/) (free tier is sufficient)
 2. Your bot code pushed to a Git repository (GitHub, GitLab, etc.)
 3. Your Google Sheets service account credentials JSON file
 4. Your Telegram Bot Token from BotFather
@@ -12,111 +12,132 @@ This guide will walk you through deploying your Telegram Roadmap Bot to [Render]
 
 ## Deployment Steps
 
-### 1. Prepare Your Repository
+### 1. Set Up Your PythonAnywhere Account
 
-Make sure your repository includes:
+1. Sign up for a [PythonAnywhere account](https://www.pythonanywhere.com/registration/register/beginner/) if you don't have one
+2. Log in to your PythonAnywhere dashboard
 
-- All the bot code
-- `requirements.txt` file
-- `render.yaml` file (for Blueprint deployment)
-- `.gitignore` file (to exclude sensitive files)
+### 2. Clone Your Repository
 
-### 2. Create a New Web Service on Render
+1. Open a Bash console from your PythonAnywhere dashboard
+2. Clone your repository:
+   ```bash
+   git clone https://github.com/yourusername/your-repo-name.git
+   cd your-repo-name
+   ```
 
-1. Log in to your [Render Dashboard](https://dashboard.render.com/)
-2. Click on the "New +" button and select "Background Worker"
-3. Connect your Git repository
-4. Configure your service:
-   - **Name**: `telegram-roadmap-bot` (or any name you prefer)
-   - **Environment**: `Python`
-   - **Region**: Choose the region closest to you
-   - **Branch**: `main` (or your default branch)
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python main.py`
-   - **Plan**: Free (or select a paid plan if you need more resources)
+### 3. Set Up a Virtual Environment
 
-### 3. Set Environment Variables
-
-In the Render dashboard, add the following environment variables:
-
-- `BOT_TOKEN`: Your Telegram Bot Token
-- `SPREADSHEET_ID`: Your Google Sheets Spreadsheet ID
-- `CHAT_ID`: Your Telegram Chat ID
-
-Note: The bot is configured to send daily summaries at 6:30 AM GMT+0 (UTC) time. If you need to change this, modify the `scheduled_time` variable in `main.py`.
+1. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
 ### 4. Upload Service Account Credentials
 
-Since Render doesn't support uploading files directly, you have two options:
+You have two options for handling your Google Sheets service account credentials:
 
-#### Option 1: Use Render's Secret Files
+#### Option 1: Direct Upload
 
-1. In your service settings, go to the "Secret Files" section
-2. Add a new secret file:
-   - **Filename**: `credentials/service_account.json`
-   - **Contents**: Paste the entire contents of your service account JSON file
-3. Update your `SERVICE_ACCOUNT_PATH` environment variable to point to this location
+1. In the PythonAnywhere dashboard, go to the "Files" tab
+2. Navigate to your project directory
+3. Create a `credentials` directory if it doesn't exist
+4. Upload your `service_account.json` file to the `credentials` directory
+5. Update your `.env` file with the correct path to the service account file
 
-#### Option 2: Encode as Environment Variable
+#### Option 2: Base64 Encoding
 
-1. Base64 encode your service account JSON file:
+1. On your local machine, encode your service account JSON file:
    ```bash
-   cat credentials/service_account.json | base64
+   python encode_credentials.py
    ```
-2. Add a new environment variable:
-   - **Key**: `SERVICE_ACCOUNT_JSON_BASE64`
-   - **Value**: The base64-encoded string
-3. Modify your code to decode this at runtime:
-
-   ```python
-   # Add to your main.py or a startup script
-   import base64
-   import os
-   import json
-
-   # Create credentials directory if it doesn't exist
-   os.makedirs('credentials', exist_ok=True)
-
-   # Decode and save the service account JSON
-   if 'SERVICE_ACCOUNT_JSON_BASE64' in os.environ:
-       json_data = base64.b64decode(os.environ['SERVICE_ACCOUNT_JSON_BASE64']).decode('utf-8')
-       with open('credentials/service_account.json', 'w') as f:
-           f.write(json_data)
+2. Copy the base64-encoded string
+3. Copy the `.env.example` file to `.env` in your project directory on PythonAnywhere:
+   ```bash
+   cp .env.example .env
+   ```
+4. Edit the `.env` file and add your credentials:
+   ```
+   BOT_TOKEN=your_telegram_bot_token
+   SPREADSHEET_ID=your_google_spreadsheet_id
+   CHAT_ID=your_telegram_chat_id
+   SERVICE_ACCOUNT_JSON_BASE64=your_base64_encoded_string
    ```
 
-### 5. Deploy Your Service
+### 5. Create a Task for Running the Bot
 
-1. Click "Create Background Worker"
-2. Wait for the deployment to complete
-3. Check the logs to make sure your bot starts successfully
+Since the free tier of PythonAnywhere doesn't allow applications to run indefinitely, you'll need to set up a scheduled task:
+
+1. Go to the "Tasks" tab in your PythonAnywhere dashboard
+2. Set up a new scheduled task:
+   - Time: Set to run at 6:30 UTC (or your preferred time)
+   - Command: Enter the full path to your Python interpreter and script:
+     ```
+     /home/yourusername/your-repo-name/venv/bin/python /home/yourusername/your-repo-name/main.py
+     ```
+   - Select "Daily" for the frequency
+
+### 6. Test Your Deployment
+
+1. Run your bot manually to test if everything is working:
+   ```bash
+   cd /home/yourusername/your-repo-name
+   source venv/bin/activate
+   python test_bot.py
+   ```
+2. Check if you receive a message from your bot on Telegram
+
+## Important Notes for PythonAnywhere Free Tier
+
+1. **Task Duration**: On the free tier, tasks can only run for a limited time (about 5-10 minutes). This should be enough for your bot to send daily summaries.
+
+2. **Always-on Applications**: The free tier doesn't support always-on applications. Your bot will only run when the scheduled task executes.
+
+3. **Alternative Approach**: If you need your bot to be more responsive, consider:
+   - Upgrading to a paid PythonAnywhere plan
+   - Using a webhook-based approach instead of polling (requires code modifications)
 
 ## Monitoring and Maintenance
 
-- **Logs**: Monitor your bot's logs in the Render dashboard
-- **Updates**: When you push changes to your repository, Render will automatically redeploy your bot (if auto-deploy is enabled)
-- **Scaling**: If needed, you can upgrade your plan for more resources
+- **Logs**: Check the task log in the PythonAnywhere dashboard after each scheduled run
+- **Updates**: When you push changes to your repository, you'll need to pull them on PythonAnywhere:
+  ```bash
+  cd /home/yourusername/your-repo-name
+  git pull
+  source venv/bin/activate
+  pip install -r requirements.txt
+  ```
 
 ## Troubleshooting
 
-### Bot Not Starting
+### Task Not Running
 
-Check the logs for error messages. Common issues include:
+Check the task log for error messages. Common issues include:
 
-- **Missing Environment Variables**: Ensure all required environment variables are set
-- **Service Account Issues**: Verify the service account JSON file is correctly set up
-- **Network Issues**: Check if the bot can connect to the Telegram API and Google Sheets API
+- **Path Issues**: Ensure all paths in your task command are correct
+- **Environment Variables**: Make sure your `.env` file is properly set up
+- **Dependencies**: Verify all required packages are installed in your virtual environment
 
-### Bot Crashes
+### Bot Not Sending Messages
 
-If your bot crashes frequently:
+If your bot runs but doesn't send messages:
 
-1. Implement better error handling in your code
-2. Consider adding a process manager like Supervisor
-3. Upgrade to a paid plan for more reliable performance
+1. Check if your Telegram Bot Token is correct
+2. Verify your Chat ID is correct
+3. Make sure you've started a conversation with your bot on Telegram
+
+### Google Sheets Connection Issues
+
+If your bot can't connect to Google Sheets:
+
+1. Verify the service account JSON file is correctly uploaded
+2. Make sure the spreadsheet ID is correct
+3. Confirm you've shared the spreadsheet with the service account email
 
 ## Additional Resources
 
-- [Render Documentation](https://render.com/docs)
-- [Python on Render](https://render.com/docs/python)
-- [Environment Variables on Render](https://render.com/docs/environment-variables)
-- [Secret Files on Render](https://render.com/docs/secret-files)
+- [PythonAnywhere Documentation](https://help.pythonanywhere.com/)
+- [PythonAnywhere API](https://help.pythonanywhere.com/pages/API/)
+- [Scheduled Tasks on PythonAnywhere](https://help.pythonanywhere.com/pages/ScheduledTasks/)

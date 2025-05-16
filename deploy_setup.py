@@ -12,27 +12,27 @@ def setup_credentials():
     """
     Set up credentials for deployment.
     This function handles decoding base64-encoded service account credentials
-    which is a common approach for deploying to platforms like Render.
+    which is a common approach for deploying to platforms like PythonAnywhere.
     """
     # Create credentials directory if it doesn't exist
     os.makedirs('credentials', exist_ok=True)
-    
+
     # Check if we have base64-encoded service account credentials
     if 'SERVICE_ACCOUNT_JSON_BASE64' in os.environ:
         try:
             logging.info("Found SERVICE_ACCOUNT_JSON_BASE64 environment variable")
-            
+
             # Decode the base64 string
             json_data = base64.b64decode(os.environ['SERVICE_ACCOUNT_JSON_BASE64']).decode('utf-8')
-            
+
             # Save to file
             service_account_path = 'credentials/service_account.json'
             with open(service_account_path, 'w') as f:
                 f.write(json_data)
-            
+
             # Update the environment variable to point to the file
             os.environ['SERVICE_ACCOUNT_PATH'] = service_account_path
-            
+
             logging.info(f"Service account credentials saved to {service_account_path}")
             return True
         except Exception as e:

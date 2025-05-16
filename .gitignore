@@ -49,6 +49,9 @@ logs/
 # Render specific
 .render/
 
+# PythonAnywhere specific
+.pythonanywhere/
+
 # Local development
 .coverage
 htmlcov/

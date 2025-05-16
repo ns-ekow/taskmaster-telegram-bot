@@ -20,7 +20,7 @@ A Telegram bot that sends daily summaries of tasks and deadlines from a Google S
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ns-ekow/taskmaster-telegram-bot.git
 cd tgbot
 ```
 
@@ -50,11 +50,15 @@ pip install -r requirements.txt
 
 ### Step 5: Configure Environment Variables
 
-1. Copy the `.env.example` file to `.env`
+1. Copy the `.env.example` file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 2. Update the `.env` file with your:
    - Telegram Bot Token (from BotFather)
    - Google Sheets Spreadsheet ID
    - Path to the service account JSON file
+   - Your Telegram Chat ID
 
 ### Step 6: Get Your Telegram Chat ID
 
@@ -80,9 +84,9 @@ python main.py
 
 Once the bot is running, you can interact with it by sending commands to your bot on Telegram.
 
-### Step 9: Deploy to Render (Optional)
+### Step 9: Deploy to PythonAnywhere (Optional)
 
-To deploy the bot to Render:
+To deploy the bot to PythonAnywhere:
 
 1. Encode your service account credentials:
 
