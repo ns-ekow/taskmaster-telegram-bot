@@ -21,7 +21,8 @@ A Telegram bot that sends daily summaries of tasks and deadlines from a Google S
 
 ```bash
 git clone <repository-url>
-cd tgbot
+cd taskmaster-telegram-bot
+
 ```
 
 ### Step 2: Set Up a Virtual Environment
