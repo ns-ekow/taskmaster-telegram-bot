@@ -2,5 +2,8 @@ services:
   - type: web
     name: taskmaster-bot
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      echo "→ Running pip install only!"
+      pip install --upgrade pip
+      pip install -r requirements.txt
     startCommand: python main.py
