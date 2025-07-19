@@ -66,7 +66,7 @@ async def scheduled_daily_summary(context):
 def main():
     """Run the bot with job queue"""
     # Create application
-    application = Application.builder().token(BOT_TOKEN).build()
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start_command))
