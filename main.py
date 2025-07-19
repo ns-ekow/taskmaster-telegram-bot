@@ -2,7 +2,7 @@ import logging
 from datetime import time
 import pytz
 from telegram.ext import (
-    Application,
+    ApplicationBuilder,
     CallbackQueryHandler,
     CommandHandler
 )
