@@ -1,6 +1,5 @@
 services:
   - type: web
-    name: taskmaster-bot
     env: python
     buildCommand: |
       echo "→ Running pip install only!"
