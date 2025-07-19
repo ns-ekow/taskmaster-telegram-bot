@@ -1,6 +1,7 @@
-python-telegram-bot==22.0
+python-telegram-bot[job-queue]==20.6
 gspread==6.2.1
 google-auth==2.40.1
 google-auth-oauthlib==1.2.2
 python-dotenv==1.1.0
 pytz==2025.2
+
